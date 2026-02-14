@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/score_item.dart';
 import '../theme/app_theme.dart';
+import 'score_cached_image.dart';
 
 class ScoreRow extends StatelessWidget {
   final ScoreItem item;
@@ -11,6 +12,8 @@ class ScoreRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final imageUrl = item.downloadUrl ?? item.fileUrl;
+    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -34,8 +37,20 @@ class ScoreRow extends StatelessWidget {
                     color: AppColors.cardTint,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child:
-                      const Icon(Icons.library_music_rounded, color: AppColors.accent),
+                  clipBehavior: Clip.antiAlias,
+                  child: hasImage
+                      ? Hero(
+                          tag: 'score-${item.id}',
+                          transitionOnUserGestures: true,
+                          child: ScoreCachedImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.library_music_rounded,
+                          color: AppColors.accent,
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

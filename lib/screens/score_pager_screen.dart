@@ -27,6 +27,7 @@ class _ScorePagerScreenState extends State<ScorePagerScreen> {
 
   int _currentIndex = 0;
   bool _uiHidden = false;
+  double _dragDy = 0;
 
   @override
   void initState() {
@@ -68,6 +69,27 @@ class _ScorePagerScreenState extends State<ScorePagerScreen> {
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: uiToggle,
+        onVerticalDragStart: (_) {
+          _dragDy = 0;
+        },
+        onVerticalDragUpdate: (details) {
+          if (_zooming.value) {
+            return;
+          }
+          _dragDy += details.delta.dy;
+        },
+        onVerticalDragEnd: (details) {
+          if (_zooming.value) {
+            return;
+          }
+          final velocity = details.primaryVelocity ?? 0;
+          final passedDistance = _dragDy > 100;
+          final passedVelocity = velocity > 500;
+
+          if (passedDistance || passedVelocity) {
+            Navigator.of(context).maybePop();
+          }
+        },
         child: Container(
           color: Colors.black,
           child: ValueListenableBuilder<bool>(
@@ -155,7 +177,12 @@ class __ZoomableScoreImageState extends State<_ZoomableScoreImage> {
                 transformationController: _tc,
                 minScale: 1,
                 maxScale: 4,
-                child: ScoreCachedImage(imageUrl: imageUrl),
+                panEnabled: false,
+                child: Hero(
+                  tag: 'score-${widget.item.id}',
+                  transitionOnUserGestures: true,
+                  child: ScoreCachedImage(imageUrl: imageUrl),
+                ),
               ),
             ),
     );
