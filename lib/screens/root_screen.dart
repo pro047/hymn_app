@@ -36,7 +36,7 @@ class _RootScreenState extends State<RootScreen> {
   void _prefetchScoreImages(List<ScoreItem> scores) {
     final urls = scores
         .map((item) => item.downloadUrl ?? item.fileUrl ?? '')
-        .where((url) => url.isNotEmpty)
+        .where((url) => url.isNotEmpty && _isNetworkUrl(url))
         .toList();
 
     final key = urls.join('|');
@@ -119,6 +119,10 @@ class _RootScreenState extends State<RootScreen> {
         );
       },
     );
+  }
+
+  bool _isNetworkUrl(String value) {
+    return value.startsWith('http://') || value.startsWith('https://');
   }
 }
 

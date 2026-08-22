@@ -166,25 +166,37 @@ class __ZoomableScoreImageState extends State<_ZoomableScoreImage> {
   @override
   Widget build(BuildContext context) {
     final imageUrl = widget.item.downloadUrl ?? widget.item.fileUrl;
-    return Center(
-      child: imageUrl == null || imageUrl.isEmpty
-          ? const Text('악보 이미지를 불러올 수 없습니다')
-          : GestureDetector(
-              onDoubleTap: _handleDoubleTap,
-              child: InteractiveViewer(
-                clipBehavior: Clip.none,
-                boundaryMargin: const EdgeInsets.all(double.infinity),
-                transformationController: _tc,
-                minScale: 1,
-                maxScale: 4,
-                panEnabled: false,
-                child: Hero(
-                  tag: 'score-${widget.item.id}',
-                  transitionOnUserGestures: true,
-                  child: ScoreCachedImage(imageUrl: imageUrl),
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return const Center(child: Text('악보 이미지를 불러올 수 없습니다'));
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final viewportHeight = constraints.maxHeight;
+
+        return Center(
+          child: GestureDetector(
+            onDoubleTap: _handleDoubleTap,
+            child: InteractiveViewer(
+              clipBehavior: Clip.none,
+              boundaryMargin: const EdgeInsets.all(double.infinity),
+              transformationController: _tc,
+              minScale: 1,
+              maxScale: 4,
+              panEnabled: false,
+              child: Hero(
+                tag: 'score-${widget.item.id}',
+                transitionOnUserGestures: true,
+                child: ScoreCachedImage(
+                  imageUrl: imageUrl,
+                  height: viewportHeight,
+                  fit: BoxFit.fitHeight,
                 ),
               ),
             ),
+          ),
+        );
+      },
     );
   }
 }
